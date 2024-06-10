@@ -1,10 +1,10 @@
 from django import forms
-from .models import Report, UserCompany, Company
+from .models import SemiAnnual2024Report
 
 
 class ReportForm(forms.ModelForm):
     class Meta:
-        model = Report
+        model = SemiAnnual2024Report
         fields = [
             'company',
             'field_1', 'field_2', 'field_3', 'field_4', 'field_5', 'field_6', 'field_7', 'field_8', 'field_9',

@@ -3,7 +3,7 @@ from django.shortcuts import redirect
 from django.shortcuts import render, get_object_or_404
 
 from .forms import ReportForm
-from .models import Report, CreatorsSummaryReport, UserCompany
+from .models import SemiAnnual2024Report, SemiAnnual2024CreatorsSummaryReport, SemiAnnual2024UserCompany
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, login, logout
@@ -25,7 +25,7 @@ def create_report(request):
 
 @login_required
 def update_report(request, pk):
-    report = get_object_or_404(Report, pk=pk)
+    report = get_object_or_404(SemiAnnual2024Report, pk=pk)
     if request.method == 'POST':
         form = ReportForm(request.POST, instance=report)
         if form.is_valid():
@@ -40,16 +40,16 @@ def update_report(request, pk):
 def report_list(request):
     user = request.user
 
-    creators_summary_report = CreatorsSummaryReport.objects.first()
+    creators_summary_report = SemiAnnual2024CreatorsSummaryReport.objects.first()
     if creators_summary_report and user in creators_summary_report.creators.all():
-        reports = Report.objects.all()
+        reports = SemiAnnual2024Report.objects.all()
         return render(request, 'sixmonths2024/report_list.html', {'reports': reports})
     else:
-        user_company = UserCompany.objects.get(user=user)
+        user_company = SemiAnnual2024UserCompany.objects.get(user=user)
         company = user_company.companies.first()
 
         # Если для этой компании уже есть отчет, получаем его
-        report = Report.objects.filter(company=company).first()
+        report = SemiAnnual2024Report.objects.filter(company=company).first()
 
         if request.method == 'POST':
             form = ReportForm(request.POST, instance=report)
@@ -60,7 +60,7 @@ def report_list(request):
                 return redirect('report_list')
         else:
             form = ReportForm(instance=report, initial={'company': company})
-            user_company = UserCompany.objects.filter(user=user).first()
+            user_company = SemiAnnual2024UserCompany.objects.filter(user=user).first()
             available_companies = user_company.companies.all()  # Компании, доступные пользователю
             form.fields['company'].queryset = available_companies  # Ограничиваем доступные компании
         return render(request, 'sixmonths2024/report_form.html', {'form': form})
@@ -69,17 +69,17 @@ def report_list(request):
 # def report_list(request):
 #     user = request.user  # Получаем текущего пользователя
 #
-#     # Получаем единственный объект CreatorsSummaryReport
-#     creators_summary_report = CreatorsSummaryReport.objects.first()
+#     # Получаем единственный объект SemiAnnual2024CreatorsSummaryReport
+#     creators_summary_report = SemiAnnual2024CreatorsSummaryReport.objects.first()
 #
 #     # Проверяем, является ли пользователь создателем сводного отчета
 #     if creators_summary_report and user in creators_summary_report.creators.all():
 #         # Пользователь имеет право создавать сводные отчеты
-#         reports = Report.objects.all()
+#         reports = SemiAnnual2024Report.objects.all()
 #         return render(request, 'sixmonths2024/report_list.html', {'reports': reports})
 #     else:
 #         # Пользователь не имеет права создавать сводные отчеты
-#         user_company = UserCompany.objects.filter(user=user).first()
+#         user_company = SemiAnnual2024UserCompany.objects.filter(user=user).first()
 #         available_companies = user_company.companies.all()  # Компании, доступные пользователю
 #
 #         if request.method == 'POST':

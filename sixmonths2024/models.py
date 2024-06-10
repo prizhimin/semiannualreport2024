@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
-class Company(models.Model):
+class SemiAnnual2024Company(models.Model):
     name = models.CharField(max_length=255)
     line_number = models.PositiveSmallIntegerField()
 
@@ -10,28 +10,28 @@ class Company(models.Model):
         return f"{self.name}"
 
 
-class UserCompany(models.Model):
+class SemiAnnual2024UserCompany(models.Model):
     """
     Определяет какой филиал(ы) может редактировать пользователь
     """
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    companies = models.ManyToManyField(Company)
+    companies = models.ManyToManyField(SemiAnnual2024Company)
 
     def __str__(self):
         return f"{self.user.username} - {', '.join([company.name for company in self.companies.all()])}"
 
 
-class CreatorsSummaryReport(models.Model):
+class SemiAnnual2024CreatorsSummaryReport(models.Model):
     """
     Список создателей сводного отчёта
     """
     creators = models.ManyToManyField(User, related_name='summary_reports')
 
 
-class Report(models.Model):
+class SemiAnnual2024Report(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, verbose_name='Автор', on_delete=models.CASCADE)
-    company = models.OneToOneField(Company, verbose_name='Компания/Филиал ПАО "Т Плюс"', on_delete=models.CASCADE)
+    company = models.OneToOneField(SemiAnnual2024Company, verbose_name='Компания/Филиал ПАО "Т Плюс"', on_delete=models.CASCADE)
 
     # ------------------ КАДРЫ
     field_1 = models.PositiveIntegerField(verbose_name="Штатная численность СБ (чел.)", default=0)
@@ -137,4 +137,4 @@ class Report(models.Model):
                                                         "запросы)", default=0)
 
     def __str__(self):
-        return f"Report by {self.user.username} on {self.created_at}"
+        return f"SemiAnnual2024Report by {self.user.username} on {self.created_at}"
