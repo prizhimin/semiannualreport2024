@@ -31,7 +31,7 @@ class CreatorsSummaryReport(models.Model):
 class Report(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, verbose_name='Автор', on_delete=models.CASCADE)
-    company = models.ForeignKey(Company, verbose_name='Компания/Филиал ПАО "Т Плюс"', on_delete=models.CASCADE)
+    company = models.OneToOneField(Company, verbose_name='Компания/Филиал ПАО "Т Плюс"', on_delete=models.CASCADE)
 
     # ------------------ КАДРЫ
     field_1 = models.PositiveIntegerField(verbose_name="Штатная численность СБ (чел.)", default=0)
