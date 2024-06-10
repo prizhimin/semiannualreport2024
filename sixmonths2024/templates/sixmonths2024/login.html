@@ -1,0 +1,23 @@
+<!-- myapp/templates/myapp/login.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Авторизация</title>
+</head>
+<body>
+    <h2>Авторизация</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Войти</button>
+    </form>
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</body>
+</html>
