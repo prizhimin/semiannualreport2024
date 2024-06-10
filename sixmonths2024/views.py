@@ -38,40 +38,69 @@ def update_report(request, pk):
 
 @login_required
 def report_list(request):
-    user = request.user  # Получаем текущего пользователя
+    user = request.user
 
-    # Получаем единственный объект CreatorsSummaryReport
     creators_summary_report = CreatorsSummaryReport.objects.first()
-
-    # Проверяем, является ли пользователь создателем сводного отчета
     if creators_summary_report and user in creators_summary_report.creators.all():
-        # Пользователь имеет право создавать сводные отчеты
         reports = Report.objects.all()
         return render(request, 'sixmonths2024/report_list.html', {'reports': reports})
     else:
-        # Пользователь не имеет права создавать сводные отчеты
-        user_company = UserCompany.objects.filter(user=user).first()
-        available_companies = user_company.companies.all()  # Компании, доступные пользователю
+        user_company = UserCompany.objects.get(user=user)
+        company = user_company.companies.first()
+
+        # Если для этой компании уже есть отчет, получаем его
+        report = Report.objects.filter(company=company).first()
 
         if request.method == 'POST':
-            # Если запрос POST, создаем форму с данными из запроса
-            form = ReportForm(request.POST)
-            form.fields['company'].queryset = available_companies  # Ограничиваем доступные компании
+            form = ReportForm(request.POST, instance=report)
             if form.is_valid():
-                print(1)
-                # Если форма валидна, сохраняем отчет
                 report = form.save(commit=False)
-                report.user = user  # Устанавливаем пользователя
+                report.user = request.user  # Устанавливаем текущего пользователя
                 report.save()
-                return redirect('report_list')  # Перенаправляем на список отчетов
+                return redirect('report_list')
         else:
-            # Если запрос GET, создаем форму с начальными данными
-            form = ReportForm(initial={'company': user_company, 'user': request.user})
+            form = ReportForm(instance=report, initial={'company': company})
+            user_company = UserCompany.objects.filter(user=user).first()
+            available_companies = user_company.companies.all()  # Компании, доступные пользователю
             form.fields['company'].queryset = available_companies  # Ограничиваем доступные компании
+        return render(request, 'sixmonths2024/report_form.html', {'form': form})
 
-        return render(request, 'sixmonths2024/report_form.html', {
-            'form': form,  # Передаем форму в шаблон
-        })
+# @login_required
+# def report_list(request):
+#     user = request.user  # Получаем текущего пользователя
+#
+#     # Получаем единственный объект CreatorsSummaryReport
+#     creators_summary_report = CreatorsSummaryReport.objects.first()
+#
+#     # Проверяем, является ли пользователь создателем сводного отчета
+#     if creators_summary_report and user in creators_summary_report.creators.all():
+#         # Пользователь имеет право создавать сводные отчеты
+#         reports = Report.objects.all()
+#         return render(request, 'sixmonths2024/report_list.html', {'reports': reports})
+#     else:
+#         # Пользователь не имеет права создавать сводные отчеты
+#         user_company = UserCompany.objects.filter(user=user).first()
+#         available_companies = user_company.companies.all()  # Компании, доступные пользователю
+#
+#         if request.method == 'POST':
+#             # Если запрос POST, создаем форму с данными из запроса
+#             form = ReportForm(request.POST)
+#             form.fields['company'].queryset = available_companies  # Ограничиваем доступные компании
+#             if form.is_valid():
+#                 print(1)
+#                 # Если форма валидна, сохраняем отчет
+#                 report = form.save(commit=False)
+#                 report.user = user  # Устанавливаем пользователя
+#                 report.save()
+#                 return redirect('report_list')  # Перенаправляем на список отчетов
+#         else:
+#             # Если запрос GET, создаем форму с начальными данными
+#             form = ReportForm(initial={'company': user_company, 'user': request.user})
+#             form.fields['company'].queryset = available_companies  # Ограничиваем доступные компании
+#
+#         return render(request, 'sixmonths2024/report_form.html', {
+#             'form': form,  # Передаем форму в шаблон
+#         })
 
 
 def user_login(request):
